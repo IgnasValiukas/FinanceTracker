@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">Transactions</h1>
+<form action="{% url 'search' %}" method="get" class="inline">
+    <input name="query" class="form-control" type="text" placeholder="Search">
+    <button class="btn btn-primary" type="submit">Search</button>
+</form>
+
+<div class="container">
+    {% if transaction_list %}
+    <div class="row justify-content-center">
+        {% for transaction in transaction_list %}
+        {% if forloop.counter0|divisibleby:5 %}
+    </div>
+    <div class="row justify-content-center mb-3">
+        {% endif %}
+        <div class="col-md-2 text-center mb-2">
+            <div class="{% if transaction.type == 'e' %}text-danger{% else %}text-success{% endif %}">
+                <a href="{{ transaction.id }}"><strong>{{ transaction.title }}:</strong></a><br>
+                {{ transaction.amount }}€<br>
+                ({{ transaction.date }})
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center">There are no transactions yet.</p>
+    {% endif %}
+</div>
+<nav aria-label="Page navigation" class="d-flex justify-content-center">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1" aria-label="First">
+                <span aria-hidden="true">&laquo;&laquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
+        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+        {% endif %}
+
+        <li class="page-item active">
+      <span class="page-link">
+        {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                <span aria-hidden="true">&raquo;&raquo;</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+        <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}

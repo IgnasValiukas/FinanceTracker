@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Searches by "{{query}}" results:</h1>
+  </br>
+  {% if transactions %}
+  <ul>
+    {% for transaction in transactions %}
+      <li>
+        <a href="{% url 'transaction-detail' transaction.id %}">{{ transaction.title }}</a> ({{transaction.date}})
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+    <p>There are no transactions(</p>
+  {% endif %}
+
+  {% endblock %}

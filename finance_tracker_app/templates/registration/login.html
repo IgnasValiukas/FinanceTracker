@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3 class="text-center mt-4">Login</h3>
+{% if form.errors %}
+<p class="mt-4 text-center text-danger"><strong>Login Error! Please try again.</strong></p>
+{% endif %}
+
+{% if next %}
+{% if user.is_authenticated %}
+<p class="mt-4 text-center text-warning"><strong>Login Error! Please try again.</strong></p>
+{% endif %}
+{% endif %}
+<div class="d-flex justify-content-center">
+    <form class="mt-4" method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td>Username: </td>
+                <td>{{ form.username }}</td>
+            </tr>
+            <tr>
+                <td>Password:</td>
+                <td>{{ form.password }}</td>
+            </tr>
+        </table>
+        <div class="text-center mt-3">
+            <input class="btn btn-primary" type="submit" value="Login"/>
+        </div>
+        <input type="hidden" name="next" value="{{ next }}"/>
+        <p class="text-center mt-4"><a href="{% url 'password_reset' %}"><strong>Forgot password?</strong></a></p>
+    </form>
+</div>
+{% endblock %}
