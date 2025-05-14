@@ -3,6 +3,7 @@ from tinymce.models import HTMLField
 from django.db import models
 from django.db.models import TextField
 from django.contrib.auth.models import User
+from PIL import Image
 
 
 class Category(models.Model):
@@ -34,11 +35,11 @@ class Transaction(models.Model):
 
     amount = models.DecimalField('Amount of money', help_text='Add amount of money', blank=False, null=False,
                                  default=0.0, max_digits=12, decimal_places=2)
-    type = models.CharField(max_length=1, choices=TYPE_CHOICES, default='e')
+    type = models.CharField(max_length=1, choices=TYPE_CHOICES, default='e', help_text='Choose transaction type')
     title = models.CharField(max_length=200, blank=False, help_text='Add transaction title')
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=False)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=False, help_text='Choose transaction category')
     date = models.DateField(help_text='Add transaction date')
-    description = HTMLField(blank=True, null=True)
+    description = HTMLField(blank=True, null=True, help_text='Write transaction description (optional)')
     client = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -61,7 +62,7 @@ class Transaction(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    image = models.ImageField(default="profile_pics/default_profile.png")
+    image = models.ImageField(default="profile_pics/default_profile.png", upload_to="profile_pics")
 
     def __str__(self):
         return f'{self.user.username}'
@@ -70,4 +71,10 @@ class Profile(models.Model):
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
 
-    # later add logic
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        img = Image.open(self.image.path)
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.image.path)

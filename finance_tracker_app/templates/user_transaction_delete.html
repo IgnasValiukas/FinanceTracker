@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="content-section text-center">
+    <form method="POST">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Delete transaction</legend>
+            <h2>Are you sure want to delete '{{ object.title }} - {{ object.amount }}€' {{ object.get_type_display }} transaction ?</h2>
+        </fieldset>
+        <div class="form-group">
+            <button class="btn btn-danger" type="submit">Yes</button>
+            <a class="btn btn-secondary" href="{% url 'my-transaction' object.id %}">Cancel</a>
+        </div>
+    </form>
+    </div>
+{% endblock content %}

@@ -2,11 +2,14 @@
 
 {% block content %}
 <h1 class="title">My transactions</h1>
-
+<form action="{% url 'search' %}" method="get" class="inline">
+    <input name="query" class="form-control" type="text" placeholder="Search">
+    <button class="btn btn-primary" type="submit">Search</button>
+</form>
 {% if object_list %}
     {% for transaction in object_list %}
     <div class="{% if transaction.type == 'i' %}text-success{% elif transaction.type == 'e' %}text-danger{% endif %}">
-        <a href="{% url 'transaction-detail' transaction.pk %}">{{transaction.title}}</a> ({{ transaction.type }})
+        <a href="{% url 'my-transaction' transaction.pk %}">{{transaction.title}}</a> ({{ transaction.type }})
     </div>
     {% endfor %}
 
