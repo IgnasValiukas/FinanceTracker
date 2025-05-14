@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from tinymce.models import HTMLField
 from django.db import models
 from django.db.models import TextField
 from django.contrib.auth.models import User
@@ -37,7 +38,7 @@ class Transaction(models.Model):
     title = models.CharField(max_length=200, blank=False, help_text='Add transaction title')
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=False)
     date = models.DateField(help_text='Add transaction date')
-    description = models.TextField(max_length=2000, blank=True, help_text='Write description (optional)')
+    description = HTMLField(blank=True, null=True)
     client = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
