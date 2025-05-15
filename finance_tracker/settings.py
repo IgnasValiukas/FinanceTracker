@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'finance_tracker_app.apps.FinanceTrackerAppConfig',
     'crispy_forms',
     'crispy_bootstrap4',
+    'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -135,6 +136,12 @@ EMAIL_POST = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'finance_support@gmail.com'
 EMAIL_HOST_PASSWORD = 'VerySecret'
+
+
+# LOGOUT
+
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
 
 # TinyMCE
 

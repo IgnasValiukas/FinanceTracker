@@ -45,6 +45,10 @@ class Transaction(models.Model):
 
     def clean(self):
         super().clean()
+
+        if self.amount == 0:
+            raise ValidationError({'amount': 'Amount field cannot be zero.'})
+
         if self.category:
             cat_type = self.category.category_type
             if cat_type != 'b' and cat_type != self.type:

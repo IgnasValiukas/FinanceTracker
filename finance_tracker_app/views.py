@@ -1,15 +1,15 @@
 from django.http import HttpResponse
 from .models import Transaction, Category
-from .forms import UserUpdateForm, ProfileUpdateForm
+from .forms import UserUpdateForm, ProfileUpdateForm, TransactionForm
 from django.db.models import Q, Sum
 from django.contrib import messages
+from django.contrib.messages import get_messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import User
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.core.paginator import Paginator
-from django.views import generic
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic import (
     ListView,
@@ -26,24 +26,6 @@ def index(request):
 def about(request):
     return render(request, 'about.html')
 
-class TransactionListView(generic.ListView):
-    model = Transaction
-    paginate_by = 15
-    template_name = 'transaction_list.html'
-
-
-class TransactionDetailView(generic.DetailView):
-    model = Transaction
-    template_name = 'transaction_detail.html'
-
-    def get_success_url(self):
-        return reverse('transaction-detail', kwargs={'pk': self.object.id})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        transaction = self.get_object()
-        context['transaction_set'] = Transaction.objects.filter(category=transaction.category)
-        return context
 
 @login_required
 def search(request):
@@ -66,17 +48,27 @@ class TransactionsByUserListView(LoginRequiredMixin, ListView):
 class TransactionByUserDetailView(LoginRequiredMixin, DetailView):
     model = Transaction
     template_name = 'user_transaction.html'
+    context_object_name = 'transaction'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         transaction = self.get_object()
-        context['transaction_set'] = Transaction.objects.filter(category=transaction.category, client=self.request.user)
+
+        transactions_qs = Transaction.objects.filter(category=transaction.category, client=self.request.user).order_by(
+            '-date')
+
+        paginator = Paginator(transactions_qs, 3)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context['transaction_set'] = page_obj
         return context
 
 
 class TransactionByUserCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
-    fields = ['amount', 'type', 'title', 'category', 'date', 'description']
+    # fields = ['amount', 'type', 'title', 'category', 'date', 'description']
+    form_class = TransactionForm
     success_url = "/finance/mytransactions/"
     template_name = 'user_transaction_form.html'
 
@@ -120,8 +112,53 @@ class TransactionByUserDeleteView(LoginRequiredMixin, UserPassesTestMixin, Delet
         return self.request.user == transaction.client
 
 
+@login_required
+def dashboard(request):
+    user = request.user
+
+    income_data_qs = (
+        Transaction.objects.filter(client=user, type='i')
+        .values('category__name')
+        .annotate(total=Sum('amount'))
+        .order_by('-total')
+    )
+
+    expense_data_qs = (
+        Transaction.objects.filter(client=user, type='e')
+        .values('category__name')
+        .annotate(total=Sum('amount'))
+        .order_by('-total')
+    )
+
+    income_labels = [item['category__name'] for item in income_data_qs]
+    income_totals = [float(item['total']) for item in income_data_qs]
+
+    expense_labels = [item['category__name'] for item in expense_data_qs]
+    expense_totals = [float(item['total']) for item in expense_data_qs]
+
+    income_data = [(item['category__name'], round(item['total'], 2)) for item in income_data_qs]
+    expense_data = [(item['category__name'], round(item['total'], 2)) for item in expense_data_qs]
+
+    total_income = sum(income_totals)
+    total_expenses = sum(expense_totals)
+    balance = round(total_income - total_expenses, 2)
+
+    context = {
+        'income_labels': income_labels,
+        'income_totals': income_totals,
+        'expense_labels': expense_labels,
+        'expense_totals': expense_totals,
+        'income_data': income_data,
+        'expense_data': expense_data,
+        'balance': balance,
+    }
+
+    return render(request, 'user_dashboard.html', context)
+
+
 @csrf_protect
 def register(request):
+    list(get_messages(request))
     if request.method == "POST":
         username = request.POST['username']
         email = request.POST['email']
@@ -145,24 +182,6 @@ def register(request):
     return render(request, 'registration/register.html')
 
 
-# @login_required
-# def profile(request):
-#     if request.method == "POST":
-#         user_form = UserUpdateForm(request.POST, instance=request.user)
-#         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-#         if user_form.is_valid() and profile_form.is_valid():
-#             user_form.save()
-#             profile_form.save()
-#             messages.success(request, f"Profile updated!")
-#             return redirect('profile')
-#     else:
-#         user_form = UserUpdateForm(instance=request.user)
-#         profile_form = ProfileUpdateForm(instance=request.user.profile)
-#     context = {
-#         'user_form': user_form,
-#         'profile_form': profile_form,
-#     }
-#     return render(request, 'profile.html')
 @login_required
 def profile(request):
     user = request.user
@@ -189,8 +208,8 @@ def profile(request):
         'user_form': user_form,
         'profile_form': profile_form,
         'transaction_count': transaction_count,
-        'total_income': total_income,
-        'total_expenses': total_expenses,
-        'balance': balance
+        'total_income': round(total_income, 2),
+        'total_expenses': round(total_expenses, 2),
+        'balance': round(balance, 2)
     }
     return render(request, 'profile.html', context)
