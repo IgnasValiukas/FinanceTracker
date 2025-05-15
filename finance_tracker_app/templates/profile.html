@@ -1,29 +1,54 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+
 {% block content %}
-<h1 class="title">Profile Details</h1>
-    <div class="content-section">
-      <div class="media">
-        <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
-        <div class="media-body">
-          <h2 class="account-heading">{{ user.username }}</h2>
-          <p class="text-secondary">{{ user.email }}</p>
-        </div>
-      </div>
-       <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Profile info</legend>
-                {{ user_form|crispy }}
-                {{ profile_form|crispy }}
-            </fieldset>
-            <div class="form-group">
-                <button class="btn btn-primary" type="submit">Update</button>
+<div class="container py-5">
+    <h1 class="mb-4 text-center fw-bold">Profile Details</h1>
+
+    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-4">
+                <img src="{{ user.profile.image.url }}" alt="Profile Image" class="rounded-circle me-4"
+                     style="width: 100px; height: 100px; object-fit: cover;">
+                <div>
+                    <h2 class="mb-1">{{ user.username }}</h2>
+                    <p class="text-muted mb-0">{{ user.email }}</p>
+                </div>
             </div>
-        </form>
+
+            <!-- Transaction Stats -->
+            <div class="mb-4">
+                <h5 class="mb-3 border-bottom pb-2">Account Summary</h5>
+                <div class="d-flex justify-content-between mb-3 flex-wrap gap-3">
+                    <div>
+                        <strong>Total Transactions:</strong> {{ transaction_count }}
+                    </div>
+                    <div>
+                        <strong>Total Income:</strong> <span class="text-success">{{ total_income }}€</span>
+                    </div>
+                    <div>
+                        <strong>Total Expenses:</strong> <span class="text-danger">{{ total_expenses }}€</span>
+                    </div>
+                </div>
+
+                <!-- Emphasized Balance -->
+                <div class="text-center p-3 rounded"
+                     style="font-size: 1.8rem; font-weight: 700;
+                            color: {% if balance >= 0 %}#198754{% else %}#dc3545{% endif %};
+                            background-color: {% if balance >= 0 %}#d1e7dd{% else %}#f8d7da{% endif %};">
+                    Balance: {{ balance }}€
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {{ profile_form|crispy }}
+
+                <div class="d-grid mt-3">
+                    <button class="btn btn-primary btn-lg" type="submit">Change Profile Image</button>
+                </div>
+            </form>
+        </div>
     </div>
-{% endblock content %}
-
-
-
-
+</div>
+{% endblock %}

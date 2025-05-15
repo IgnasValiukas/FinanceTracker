@@ -1,27 +1,58 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">Transaction "{{ transaction.title }}" Details</h1>
-<p><strong>Title:</strong> {{ transaction.title }}</p>
-<p><strong>Type:</strong> {{ transaction.get_type_display }}</p>
-<p><strong>Category:</strong> {{ transaction.category }}</p>
-<p><strong>Amount:</strong></p><p class="{% if transaction.type == 'i' %}text-success{% elif transaction.type == 'e' %}text-danger{% endif %}">{{ transaction.amount }}€</p>
-{% if transaction.description %}
-<p><strong>Description:</strong> {{ transaction.description | safe }}</p>
-{% endif %}
-<a class="btn btn-secondary btn-sm" href="{% url 'my-transaction-update' object.id %}">Edit</a>
-<a class="btn btn-danger btn-sm" href="{% url 'my-transaction-delete' object.id %}">Delete</a>
-<a class="btn btn-primary btn-sm" href="{% url 'my-transactions' %}">Back</a>
-<div style="margin-left:20px;margin-top:20px">
-    <h4>History of "{{ transaction.category }}" transactions ({{ transaction_set.count }}):</h4>
-    {% for transaction in transaction_set.all %}
-    <hr>
-    <p><strong>Title:</strong> {{ transaction.title }}</p>
-    <p><strong>Category:</strong> {{ transaction.category }}</p>
-    <p class="{% if transaction.type == 'i' %}text-success{% elif transaction.type == 'e' %}text-danger{% endif %}">
-        {{ transaction.get_type_display }} {{ transaction.amount }}€
-    </p>
-    <p>{{ transaction.date }}</p>
-    {% endfor %}
+<div class="container py-5" style="max-width: 700px;">
+    <div class="card shadow-sm p-4 mb-4">
+        <h2 class="mb-3 fw-bold text-center">Transaction Details</h2>
+
+        <div class="mb-3">
+            <h4 class="fw-semibold">{{ transaction.title }}</h4>
+            <p class="mb-1">
+                <strong>Type:</strong>
+                {% if transaction.type == 'i' %}
+                    <span class="text-success">{{ transaction.get_type_display }}</span>
+                {% elif transaction.type == 'e' %}
+                    <span class="text-danger">{{ transaction.get_type_display }}</span>
+                {% else %}
+                    {{ transaction.get_type_display }}
+                {% endif %}
+            </p>
+            <p class="mb-1"><strong>Category:</strong> {{ transaction.category }}</p>
+            <p class="mb-1"><strong>Amount:</strong>
+                <span class="{% if transaction.type == 'i' %}text-success{% elif transaction.type == 'e' %}text-danger{% endif %} fs-5 fw-bold">
+                    {{ transaction.amount }}€
+                </span>
+            </p>
+            {% if transaction.description %}
+                <p><strong>Description:</strong> <br> {{ transaction.description|linebreaksbr|safe }}</p>
+            {% endif %}
+        </div>
+
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="{% url 'my-transaction-update' transaction.id %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+            <a href="{% url 'my-transaction-delete' transaction.id %}" class="btn btn-outline-danger btn-sm">Delete</a>
+            <a href="{% url 'my-transactions' %}" class="btn btn-primary btn-sm">Back</a>
+        </div>
+    </div>
+
+    {% if transaction_set.count %}
+    <div class="card shadow-sm p-4">
+        <h4 class="mb-3">History of "{{ transaction.category }}" transactions ({{ transaction_set.count }})</h4>
+        {% for tx in transaction_set.all %}
+            <div class="border-bottom pb-3 mb-3">
+                <h5 class="mb-1">{{ tx.title }}</h5>
+                <p class="mb-1">
+                    <strong>Category:</strong> {{ tx.category }}
+                </p>
+                <p class="mb-1">
+                    <span class="{% if tx.type == 'i' %}text-success{% elif tx.type == 'e' %}text-danger{% endif %}">
+                        {{ tx.get_type_display }} {{ tx.amount }}€
+                    </span>
+                </p>
+                <p class="text-muted">{{ tx.date }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

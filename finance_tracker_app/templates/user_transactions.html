@@ -1,19 +1,88 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">My transactions</h1>
-<form action="{% url 'search' %}" method="get" class="inline">
-    <input name="query" class="form-control" type="text" placeholder="Search">
-    <button class="btn btn-primary" type="submit">Search</button>
-</form>
-{% if object_list %}
-    {% for transaction in object_list %}
-    <div class="{% if transaction.type == 'i' %}text-success{% elif transaction.type == 'e' %}text-danger{% endif %}">
-        <a href="{% url 'my-transaction' transaction.pk %}">{{transaction.title}}</a> ({{ transaction.type }})
-    </div>
-    {% endfor %}
+<div class="container py-4">
+    <h1 class="mb-4 fw-bold text-center">My Transactions</h1>
 
-{% else %}
-<p>There are no transactions yet.</p>
-{% endif %}
+    <form action="{% url 'search' %}" method="get" class="input-group mb-4">
+        <input name="query" class="form-control" type="text" placeholder="Search transactions...">
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+
+    {% if transactions %}
+    <div class="row g-4">
+        {% for transaction in transactions %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'my-transaction' transaction.pk %}" class="text-decoration-none text-dark">
+                <div class="card shadow-sm h-100 border-0 {% if transaction.type == 'i' %}border-start border-success{% elif transaction.type == 'e' %}border-start border-danger{% endif %}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ transaction.title }}</h5>
+                        <p class="card-text mb-1">
+                            <strong>Type:</strong>
+                            {% if transaction.type == 'i' %}
+                            <span class="text-success">Income</span>
+                            {% elif transaction.type == 'e' %}
+                            <span class="text-danger">Expense</span>
+                            {% else %}
+                            Other
+                            {% endif %}
+                        </p>
+                        <p class="card-text mb-1"><strong>Amount:</strong> {{ transaction.amount }}</p>
+                        <p class="card-text"><small class="text-muted">Date: {{ transaction.date }}</small></p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;</span>
+            </li>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+                {% if num == page_obj.number %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;</span>
+            </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+
+    {% else %}
+    <div class="alert alert-info mt-4 text-center" role="alert">
+        There are no transactions yet.
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

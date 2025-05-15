@@ -1,17 +1,26 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+
 {% block content %}
-    <div class="content-section text-center">
-    <form method="POST">
-        {% csrf_token %}
-        <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Delete transaction</legend>
-            <h2>Are you sure want to delete '{{ object.title }} - {{ object.amount }}€' {{ object.get_type_display }} transaction ?</h2>
-        </fieldset>
-        <div class="form-group">
-            <button class="btn btn-danger" type="submit">Yes</button>
-            <a class="btn btn-secondary" href="{% url 'my-transaction' object.id %}">Cancel</a>
-        </div>
-    </form>
+<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow p-5 text-center" style="max-width: 500px; width: 100%;">
+        <h2 class="mb-4 fw-bold text-danger">Delete Transaction</h2>
+
+        <p class="fs-5">
+            Are you sure you want to delete <br>
+            <strong>"{{ object.title }} – {{ object.amount }}€"</strong><br>
+            (<span class="{% if object.type == 'i' %}text-success{% else %}text-danger{% endif %}">
+                {{ object.get_type_display }}
+            </span>)?
+        </p>
+
+        <form method="POST" class="mt-4">
+            {% csrf_token %}
+            <div class="d-flex justify-content-around">
+                <button type="submit" class="btn btn-danger px-4">Yes, Delete</button>
+                <a href="{% url 'my-transaction' object.id %}" class="btn btn-secondary px-4">Cancel</a>
+            </div>
+        </form>
     </div>
-{% endblock content %}
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% load static %}
+<div class="container py-5">
+    <!-- About App Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold">About Finance Tracker</h1>
+            <p class="lead text-muted">
+                Finance Tracker is a simple and effective tool to help you monitor your income and expenses.
+                Whether you're an individual or a small business owner, our app provides a clear view of your
+                financial activity with minimal effort.
+            </p>
+            <p class="text-muted">
+                Our goal is to empower users to make smarter financial decisions by providing access to clean records,
+                categorized history, and clear visualizations of their money flow.
+            </p>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="{% static 'images/about_main.png' %}" alt="About Illustration" class="img-fluid" style="width: 500px">
+        </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Meet the Team</h2>
+        <p class="text-muted">We're a passionate group of developers and designers building tools to simplify personal finance.</p>
+    </div>
+
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <img src="{% static 'images/about_profile_2.png' %}" class="rounded-circle mb-3" alt="Team Member 1" style="width: 150px;">
+            <h5>Alex Johnson</h5>
+            <p class="text-muted">Backend Developer</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <img src="{% static 'images/about_profile_1.png' %}" class="rounded-circle mb-3" alt="Team Member 2" style="width: 150px;">
+            <h5>Samantha Lee</h5>
+            <p class="text-muted">UI/UX Designer</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <img src="{% static 'images/about_profile.png' %}" class="rounded-circle mb-3" alt="Team Member 3" style="width: 150px;">
+            <h5>Michael Smith</h5>
+            <p class="text-muted">Frontend Developer</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

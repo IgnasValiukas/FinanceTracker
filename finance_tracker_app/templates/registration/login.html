@@ -1,35 +1,46 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% load static %}
 
-<h3 class="text-center mt-4">Login</h3>
-{% if form.errors %}
-<p class="mt-4 text-center text-danger"><strong>Login Error! Please try again.</strong></p>
-{% endif %}
+<div class="d-flex justify-content-center pt-5">
+    <div class="card shadow-sm p-4" style="width: 100%; max-width: 400px;">
+        <h3 class="text-center mb-3">Login to Your Account</h3>
 
-{% if next %}
-{% if user.is_authenticated %}
-<p class="mt-4 text-center text-warning"><strong>Login Error! Please try again.</strong></p>
-{% endif %}
-{% endif %}
-<div class="d-flex justify-content-center">
-    <form class="mt-4" method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        <table>
-            <tr>
-                <td>Username: </td>
-                <td>{{ form.username }}</td>
-            </tr>
-            <tr>
-                <td>Password:</td>
-                <td>{{ form.password }}</td>
-            </tr>
-        </table>
-        <div class="text-center mt-3">
-            <input class="btn btn-primary" type="submit" value="Login"/>
+        {% if form.errors %}
+        <div class="alert alert-danger text-center" role="alert">
+            <strong>Login Error!</strong> Please check your credentials.
         </div>
-        <input type="hidden" name="next" value="{{ next }}"/>
-        <p class="text-center mt-4"><a href="{% url 'password_reset' %}"><strong>Forgot password?</strong></a></p>
-    </form>
+        {% endif %}
+
+        {% if next %}
+            {% if user.is_authenticated %}
+                <div class="alert alert-warning text-center" role="alert">
+                    <strong>You're already logged in.</strong>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Username</label>
+                {{ form.username }}
+            </div>
+            <div class="mb-3">
+                <label for="id_password" class="form-label">Password</label>
+                {{ form.password }}
+            </div>
+            <input type="hidden" name="next" value="{{ next }}" />
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">Login</button>
+            </div>
+        </form>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'password_reset' %}" class="text-decoration-none"><strong>Forgot password?</strong></a><br>
+            <a href="{% url 'register' %}" class="text-decoration-none"><strong>Don't have an account? Register</strong></a>
+        </div>
+    </div>
 </div>
 {% endblock %}

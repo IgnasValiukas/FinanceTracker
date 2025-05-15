@@ -1,10 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1 class="title">Finance Tracker</h1>
-<div class="text-center">
-  <p>Total categories: {{ num_categories }}</p>
-  <p>Total transactions: {{ num_transactions }}</p>
-  <p>Number of visits: {{ num_visits }}</p>
+{% load static %}
+<div class="container py-5">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold">Welcome to Finance Tracker</h1>
+            <p class="lead text-muted">
+                Log your transactions, explore your financial history, and visualize your spending habits — all in one
+                place.
+            </p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'my-transaction-new' %}" class="btn btn-primary btn-lg mt-3">Add Transaction</a>
+            {% else %}
+            <a href="{% url 'login'%}" class="btn btn-primary btn-lg mt-3">Add Transaction</a>
+            {% endif %}
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="{% static 'images/home_main.png' %}" alt="Finance Graphic" class="img-fluid">
+        </div>
+    </div>
+
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <img src="{% static 'images/home_2.png' %}" class="mb-3" alt="Form Icon" style="width: 250px">
+            <h4>Simple Entry</h4>
+            <p class="text-muted">Easily add new transactions using clean, user-friendly forms.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <img src="{% static 'images/home_3.png' %}" class="mb-3" alt="History Icon" style="width: 250px">
+            <h4>Detailed Records</h4>
+            <p class="text-muted">View and manage all your transactions, including category and amount breakdowns.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <img src="{% static 'images/home_4.png' %}" class="mb-3" alt="Chart Icon" style="width: 250px">
+            <h4>Visual Insights</h4>
+            <p class="text-muted">Get clear charts to see where you spend or earn the most.</p>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="text-center mt-5">
+        <h2>Manage Your Transactions with Ease!</h2>
+        <a href="{% url 'my-transactions'%}" class="btn btn-success btn-lg mt-3">View Your Transactions</a>
+    </div>
+    {% else %}
+    <div class="text-center mt-5">
+        <h2>Ready to improve your financial health?</h2>
+        <a href="{% url 'register'%}" class="btn btn-success btn-lg mt-3">Create Your Free Account</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

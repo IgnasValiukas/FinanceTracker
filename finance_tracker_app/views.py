@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from .models import Transaction, Category
 from .forms import UserUpdateForm, ProfileUpdateForm
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -21,18 +21,10 @@ from django.views.generic import (
 
 
 def index(request):
-    num_categories = Category.objects.all().count()
-    num_transactions = Transaction.objects.all().count()
+    return render(request, 'index.html')
 
-    num_visits = request.session.get('num_visits', 1)
-    request.session['num_visits'] = num_visits + 1
-    context = {
-        'num_categories': num_categories,
-        'num_transactions': num_transactions,
-        'num_visits': num_visits,
-    }
-    return render(request, 'index.html', context=context)
-
+def about(request):
+    return render(request, 'about.html')
 
 class TransactionListView(generic.ListView):
     model = Transaction
@@ -53,10 +45,11 @@ class TransactionDetailView(generic.DetailView):
         context['transaction_set'] = Transaction.objects.filter(category=transaction.category)
         return context
 
-
+@login_required
 def search(request):
     query = request.GET.get('query')
-    search_results = Transaction.objects.filter(Q(title__icontains=query))
+    user = request.user
+    search_results = Transaction.objects.filter(Q(client=user), Q(title__icontains=query))
     return render(request, 'search.html', {'transactions': search_results, 'query': query})
 
 
@@ -64,7 +57,7 @@ class TransactionsByUserListView(LoginRequiredMixin, ListView):
     model = Transaction
     context_object_name = 'transactions'
     template_name = 'user_transactions.html'
-    paginate_by = 15
+    paginate_by = 12
 
     def get_queryset(self):
         return Transaction.objects.filter(client=self.request.user)
@@ -91,6 +84,11 @@ class TransactionByUserCreateView(LoginRequiredMixin, CreateView):
         form.instance.client = self.request.user
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_edit'] = False
+        return context
+
 
 class TransactionByUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Transaction
@@ -105,6 +103,11 @@ class TransactionByUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, Updat
     def test_func(self):
         transaction = self.get_object()
         return self.request.user == transaction.client
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_edit'] = True
+        return context
 
 
 class TransactionByUserDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -142,21 +145,52 @@ def register(request):
     return render(request, 'registration/register.html')
 
 
+# @login_required
+# def profile(request):
+#     if request.method == "POST":
+#         user_form = UserUpdateForm(request.POST, instance=request.user)
+#         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+#         if user_form.is_valid() and profile_form.is_valid():
+#             user_form.save()
+#             profile_form.save()
+#             messages.success(request, f"Profile updated!")
+#             return redirect('profile')
+#     else:
+#         user_form = UserUpdateForm(instance=request.user)
+#         profile_form = ProfileUpdateForm(instance=request.user.profile)
+#     context = {
+#         'user_form': user_form,
+#         'profile_form': profile_form,
+#     }
+#     return render(request, 'profile.html')
 @login_required
 def profile(request):
+    user = request.user
     if request.method == "POST":
-        user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        user_form = UserUpdateForm(request.POST, instance=user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=user.profile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            messages.success(request, f"Profile updated!")
+            messages.success(request, "Profile updated!")
             return redirect('profile')
     else:
-        user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user.profile)
+        user_form = UserUpdateForm(instance=user)
+        profile_form = ProfileUpdateForm(instance=user.profile)
+
+    transactions = Transaction.objects.filter(client=user)
+
+    transaction_count = transactions.count()
+    total_income = transactions.filter(type='i').aggregate(total=Sum('amount'))['total'] or 0
+    total_expenses = transactions.filter(type='e').aggregate(total=Sum('amount'))['total'] or 0
+    balance = total_income - total_expenses
+
     context = {
         'user_form': user_form,
         'profile_form': profile_form,
+        'transaction_count': transaction_count,
+        'total_income': total_income,
+        'total_expenses': total_expenses,
+        'balance': balance
     }
-    return render(request, 'profile.html')
+    return render(request, 'profile.html', context)
