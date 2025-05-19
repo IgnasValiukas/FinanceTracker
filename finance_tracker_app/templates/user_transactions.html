@@ -4,18 +4,15 @@
 <div class="container py-4">
     <h1 class="mb-4 fw-bold text-center">My Transactions</h1>
 
-    <!-- Add Transaction Button -->
     <div class="d-flex justify-content-end mb-3">
         <a href="{% url 'my-transaction-new' %}" class="btn btn-success">
             + Add New Transaction
         </a>
     </div>
-
     <form action="{% url 'search' %}" method="get" class="input-group mb-4">
         <input name="query" class="form-control" type="text" placeholder="Search transactions...">
         <button class="btn btn-primary" type="submit">Search</button>
     </form>
-
     {% if transactions %}
     <div class="row g-4">
         {% for transaction in transactions %}
@@ -44,8 +41,6 @@
         </div>
         {% endfor %}
     </div>
-
-    <!-- Pagination -->
     <nav aria-label="Page navigation" class="mt-4">
         <ul class="pagination justify-content-center">
             {% if page_obj.has_previous %}
@@ -59,11 +54,11 @@
             {% endif %}
 
             {% for num in paginator.page_range %}
-                {% if num == page_obj.number %}
-                <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
-                {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                {% endif %}
+            {% if num == page_obj.number %}
+            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+            {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
             {% endfor %}
 
             {% if page_obj.has_next %}

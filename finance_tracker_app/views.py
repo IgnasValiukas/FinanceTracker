@@ -114,46 +114,7 @@ class TransactionByUserDeleteView(LoginRequiredMixin, UserPassesTestMixin, Delet
 
 @login_required
 def dashboard(request):
-    user = request.user
-
-    income_data_qs = (
-        Transaction.objects.filter(client=user, type='i')
-        .values('category__name')
-        .annotate(total=Sum('amount'))
-        .order_by('-total')
-    )
-
-    expense_data_qs = (
-        Transaction.objects.filter(client=user, type='e')
-        .values('category__name')
-        .annotate(total=Sum('amount'))
-        .order_by('-total')
-    )
-
-    income_labels = [item['category__name'] for item in income_data_qs]
-    income_totals = [float(item['total']) for item in income_data_qs]
-
-    expense_labels = [item['category__name'] for item in expense_data_qs]
-    expense_totals = [float(item['total']) for item in expense_data_qs]
-
-    income_data = [(item['category__name'], round(item['total'], 2)) for item in income_data_qs]
-    expense_data = [(item['category__name'], round(item['total'], 2)) for item in expense_data_qs]
-
-    total_income = sum(income_totals)
-    total_expenses = sum(expense_totals)
-    balance = round(total_income - total_expenses, 2)
-
-    context = {
-        'income_labels': income_labels,
-        'income_totals': income_totals,
-        'expense_labels': expense_labels,
-        'expense_totals': expense_totals,
-        'income_data': income_data,
-        'expense_data': expense_data,
-        'balance': balance,
-    }
-
-    return render(request, 'user_dashboard.html', context)
+    return render(request, 'user_dashboard.html')
 
 
 @csrf_protect
