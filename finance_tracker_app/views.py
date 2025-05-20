@@ -67,7 +67,6 @@ class TransactionByUserDetailView(LoginRequiredMixin, DetailView):
 
 class TransactionByUserCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
-    # fields = ['amount', 'type', 'title', 'category', 'date', 'description']
     form_class = TransactionForm
     success_url = "/finance/mytransactions/"
     template_name = 'user_transaction_form.html'
