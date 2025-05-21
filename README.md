@@ -43,3 +43,7 @@ To streamline server startup in your IDE:
 5. Set the Script path to your project's manage.py
 6. In Script parameters, add: runserver
 7. Click Apply, then OK
+
+**Account for testing purpose**  
+Username: User012  
+Password: Test12345
