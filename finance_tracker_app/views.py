@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from .models import Transaction, Category
 from .forms import UserUpdateForm, ProfileUpdateForm, TransactionForm
-from django.db.models import Q, Sum
+from django.db.models import Sum
 from django.contrib import messages
 from django.contrib.messages import get_messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -23,6 +23,7 @@ from django.views.generic import (
 def index(request):
     return render(request, 'index.html')
 
+
 def about(request):
     return render(request, 'about.html')
 
@@ -31,7 +32,7 @@ def about(request):
 def search(request):
     query = request.GET.get('query')
     user = request.user
-    search_results = Transaction.objects.filter(Q(client=user), Q(title__icontains=query))
+    search_results = Transaction.objects.filter(client=user, title__icontains=query)
     return render(request, 'search.html', {'transactions': search_results, 'query': query})
 
 
@@ -42,7 +43,7 @@ class TransactionsByUserListView(LoginRequiredMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return Transaction.objects.filter(client=self.request.user)
+        return Transaction.objects.filter(client=self.request.user).order_by('-date')
 
 
 class TransactionByUserDetailView(LoginRequiredMixin, DetailView):
@@ -83,7 +84,7 @@ class TransactionByUserCreateView(LoginRequiredMixin, CreateView):
 
 class TransactionByUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Transaction
-    fields = ['amount', 'type', 'title', 'category', 'date', 'description']
+    form_class = TransactionForm
     success_url = "/finance/mytransactions/"
     template_name = 'user_transaction_form.html'
 
