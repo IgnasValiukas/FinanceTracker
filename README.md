@@ -1,6 +1,6 @@
 Finance Tracker is a Django-based web application that helps users manage their personal finances by logging and tracking transactions.
 
-**Key Features**
+🪄**Key Features**
 1. User Account:
    - Register a new account
    - Log in to access your data
@@ -44,6 +44,9 @@ To streamline server startup in your IDE:
 6. In Script parameters, add: runserver
 7. Click Apply, then OK
 
-**Account for testing purpose**  
+👨🏻‍💻**Account for testing purpose**  
 Username: User012  
-Password: Test12345
+Password: Test12345  
+
+📩**Contacts:**  
+- Email: ignas.valiukas@gmail.com
